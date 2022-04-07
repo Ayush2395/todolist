@@ -1,23 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { Container } from "react-bootstrap";
+import AddTask from "./components/AddTask";
+import ListTask from "./components/ListTask";
 
 function App() {
+  const [taskId, setTaskId] = useState("");
+  const getTaskId = (id) => {
+    setTaskId(id);
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Container
+        className="my-5 d-flex justify-content-center align-items-center"
+        style={{ minHeight: "100vh" }}
+      >
+        <div className="w-100" style={{ maxWidth: "500px" }}>
+          <AddTask id={taskId} setID={setTaskId} />
+          <ListTask getTaskId={getTaskId} />
+        </div>
+      </Container>
     </div>
   );
 }
