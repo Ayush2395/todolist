@@ -68,9 +68,9 @@ function ListTask({ getTaskId }) {
             <thead>
               <tr>
                 <th>#</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Username</th>
+                <th>Your Task</th>
+                <th>Status</th>
+                <th>Edit/delete</th>
               </tr>
             </thead>
             <tbody>
