@@ -45,7 +45,7 @@ function AddTask({ id, setID }) {
   const editHandler = async () => {
     try {
       const snapShot = await firebaseService.getOneTask(id);
-    //   console.log(snapShot.data().task);
+      //   console.log(snapShot.data().task);
       setTask(snapShot.data().task);
       setStatus(snapShot.data().status);
     } catch (err) {
