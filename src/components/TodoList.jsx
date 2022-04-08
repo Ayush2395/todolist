@@ -11,6 +11,7 @@ function TodoList() {
   const [taskId, setTaskId] = useState("");
   const getTaskId = (id) => {
     setTaskId(id);
+    console.log(`Id of doc: ${id}`);
   };
 
   const { logOut, user } = useAuthContext();

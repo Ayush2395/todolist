@@ -1,35 +1,38 @@
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Spinner, Table } from "react-bootstrap";
-import { db } from "../service/firebase.config";
+import { auth, db } from "../service/firebase.config";
 import { FiEdit, FiDelete } from "react-icons/fi";
+import { onValue, ref, remove } from "firebase/database";
+import { onAuthStateChanged } from "firebase/auth";
 import firebaseService from "../service/firebase.service";
 
 function ListTask({ getTaskId }) {
   const [tasks, setTasks] = useState([]);
   const [loader, setLoader] = useState(false);
-  const collectionRef = collection(db, "task");
-  const que = query(collectionRef, orderBy("timeStamp", "desc"));
 
   useEffect(() => {
     getAllTask();
     setLoader(false);
   }, []);
 
-  const getAllTask = async () => {
-    // const data = await firebaseService.getAllTask();
-    // setTasks(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    // setLoader(false)
-    onSnapshot(que, (snap) => {
-      const data = snap.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-      setTasks(data);
-      setLoader(false);
+  const getAllTask = () => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        onValue(ref(db, `/${auth.currentUser.uid}`), (snap) => {
+          setTasks([]);
+          const data = snap.val();
+          if (data != null) {
+            Object.values(data).map((doc) =>
+              setTasks((oldArray) => [...oldArray, doc])
+            );
+          }
+        });
+      }
     });
   };
 
-  const delteTask = async (id) => {
-    await firebaseService.deleteTask(id);
-    getAllTask();
+  const handleDeleteTask = (id) => {
+    firebaseService.deleteTask(id);
   };
 
   return (
@@ -54,8 +57,8 @@ function ListTask({ getTaskId }) {
           ) : (
             <Button
               onClick={() => {
-                getAllTask();
                 setLoader(true);
+                getAllTask();
               }}
               className="mb-3 btn-secondary d-block"
             >
@@ -74,28 +77,26 @@ function ListTask({ getTaskId }) {
               </tr>
             </thead>
             <tbody>
-              {tasks.map((item, index) => {
+              {tasks.map((task, index) => {
                 return (
-                  <tr key={item.id}>
+                  <tr key={task.uuid}>
                     <td>{index + 1}</td>
-                    <td>{item.task}</td>
-                    <td>{item.status}</td>
+                    <td>{task.task}</td>
+                    <td>{task.status}</td>
                     <td>
                       <Button
                         onClick={() => {
-                          getTaskId(item.id);
+                          getTaskId(task.uuid);
                         }}
-                        variant="warning"
-                        className="mx-1"
+                        className="mx-1 btn-warning"
                       >
                         <FiEdit />
                       </Button>
                       <Button
                         onClick={() => {
-                          delteTask(item.id);
+                          handleDeleteTask(task.uuid);
                         }}
-                        variant="danger"
-                        className="mx-1"
+                        className="mx-1 btn-danger"
                       >
                         <FiDelete />
                       </Button>

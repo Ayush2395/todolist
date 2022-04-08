@@ -1,39 +1,17 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
-import { db } from "./firebase.config";
+import { ref, remove, set } from "firebase/database";
+import { uid } from "uid";
+import { auth, db } from "./firebase.config";
 
-const collectionRef = collection(db, "task");
+const uuid = uid();
 
 class firebaseService {
   addTask(newTask) {
-    return addDoc(collectionRef, newTask);
+    return set(ref(db, `/${auth.currentUser.uid}/${uuid}`), newTask);
   }
 
-  getAllTask() {
-    return getDocs(collectionRef);
-  }
-
-  getOneTask(id) {
-    const taskDoc = doc(collectionRef, id);
-    return getDoc(taskDoc);
-  }
-
-  updateTask(id, updatedTask) {
-    const taskDoc = doc(collectionRef, id);
-    return updateDoc(taskDoc, updatedTask);
-  }
-
-  deleteTask(id) {
-    const taskDoc = doc(collectionRef, id);
-    return deleteDoc(taskDoc);
-  }
+  deleteTask = (id) => {
+    return remove(ref(db, `/${auth.currentUser.uid}/${id}`));
+  };
 }
 
 export default new firebaseService();

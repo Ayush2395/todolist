@@ -1,6 +1,7 @@
-import { serverTimestamp } from "firebase/firestore";
+import { serverTimestamp } from "firebase/database";
 import React, { useEffect, useState } from "react";
 import { Alert, Button, ButtonGroup, Card, Form } from "react-bootstrap";
+import { uid } from "uid";
 import firebaseService from "../service/firebase.service";
 
 function AddTask({ id, setID }) {
@@ -8,6 +9,7 @@ function AddTask({ id, setID }) {
   const [status, setStatus] = useState("");
   const [flag, setFlag] = useState(false);
   const [message, setMessage] = useState({ error: false, msg: "" });
+  const uuid = uid();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -18,39 +20,32 @@ function AddTask({ id, setID }) {
       return;
     }
 
-    const newTask = { task, status, timeStamp: serverTimestamp() };
+    const newTask = { task, status, timeStamp: serverTimestamp(), uuid };
+
+    // try {
+    //   if (id !== undefined && id !== "") {
+    //     await firebaseService.updateTask(id, newTask);
+    //     setMessage({ error: false, msg: "Your task is Updated" });
+    //     setID("");
+    //   } else {
+    //     await firebaseService.addTask(newTask);
+    //     setMessage({ error: false, msg: "Your task added" });
+    //   }
+    // } catch (err) {
+    //   setMessage({ error: true, msg: err.message });
+    // }
 
     try {
       if (id !== undefined && id !== "") {
-        await firebaseService.updateTask(id, newTask);
-        setMessage({ error: false, msg: "Your task is Updated" });
-        setID("");
-      } else {
         await firebaseService.addTask(newTask);
-        setMessage({ error: false, msg: "Your task added" });
+        setMessage({ error: false, msg: "Task added in database" });
+        setID("");
       }
-    } catch (err) {
-      setMessage({ error: true, msg: err.message });
+    } catch (error) {
+      setMessage({ error: true, msg: error.message });
     }
 
     setTask("");
-  };
-
-  useEffect(() => {
-    if (id !== undefined && id !== "") {
-      editHandler();
-    }
-  }, [id]);
-
-  const editHandler = async () => {
-    try {
-      const snapShot = await firebaseService.getOneTask(id);
-      //   console.log(snapShot.data().task);
-      setTask(snapShot.data().task);
-      setStatus(snapShot.data().status);
-    } catch (err) {
-      setMessage({ error: false, msg: err.message });
-    }
   };
 
   return (
